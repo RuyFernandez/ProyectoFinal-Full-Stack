@@ -1,0 +1,810 @@
+{
+  "documentation": {
+    "title": "Guía Rápida de Uso - Sistema de Usuarios",
+    "description": "Esta guía explica cómo interactuar con los endpoints de autenticación y gestión de usuarios.",
+    "sections": [
+      {
+        "title": "1. Registro de Usuario",
+        "description": "Para registrarse, envía un POST a /auth/register con email y contraseña.",
+        "example": {
+          "request": {
+            "url": "http://localhost:3010/auth/register",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "email": "usuario@ejemplo.com",
+              "password": "contraseña123"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "message": "Usuario registrado exitosamente"
+            }
+          }
+        }
+      },
+      {
+        "title": "2. Inicio de Sesión",
+        "description": "Para iniciar sesión, envía un POST a /auth/login con email y contraseña. Recibirás un token JWT que debes usar en las peticiones autenticadas.",
+        "example": {
+          "request": {
+            "url": "http://localhost:3010/auth/login",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "email": "usuario@ejemplo.com",
+              "password": "contraseña123"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            }
+          }
+        }
+      },
+      {
+        "title": "3. Uso del Token JWT",
+        "description": "Incluye el token en el encabezado 'Authorization' de tus peticiones: 'Bearer tu_token_jwt'"
+      },
+      {
+        "title": "4. Endpoints Protegidos",
+        "description": "Los siguientes endpoints requieren autenticación (token JWT):",
+        "endpoints": [
+          "GET /auth/me - Obtener perfil del usuario",
+          "GET /usuarios/liked - Libros favoritos",
+          "GET /usuarios/read - Libros leídos",
+          "GET /usuarios/toread - Lista de lectura",
+          "GET /usuarios/disliked - Libros no deseados"
+        ]
+      },
+      {
+        "title": "5. Manejo de Errores Comunes",
+        "errors": [
+          {
+            "status": 401,
+            "message": "No autorizado - Token inválido o faltante"
+          },
+          {
+            "status": 400,
+            "message": "Error de validación - Campos faltantes o inválidos"
+          },
+          {
+            "status": 500,
+            "message": "Error del servidor - Contacta al administrador"
+          }
+        ]
+      }
+    ]
+  },
+  "endpoints": [
+    {
+      "endpoint": "http://localhost:3010/libros",
+      "method": "GET",
+      "title": "Obtener libros",
+      "description": "Lista todos los libros disponibles. Puede incluir parámetros de consulta para filtrar y paginar resultados.",
+      "requiresAuth": false,
+      "requiresAdmin": false,
+      "queryParams": [
+        {"name": "page", "type": "number", "required": false, "description": "Número de página para la paginación"},
+        {"name": "limit", "type": "number", "required": false, "description": "Cantidad de resultados por página"},
+        {"name": "genero", "type": "string", "required": false, "description": "Filtrar por género literario"},
+        {"name": "autor", "type": "string", "required": false, "description": "Filtrar por nombre de autor"},
+        {"name": "anio", "type": "number", "required": false, "description": "Filtrar por año de publicación"}
+      ],
+      "exampleResponse": {
+        "success": true,
+        "data": [
+          {
+            "id": 1,
+            "titulo": "Cien años de soledad",
+            "autor": "Gabriel García Márquez",
+            "genero": "Realismo mágico",
+            "anio": 1967,
+            "sinopsis": "La historia de la familia Buendía a lo largo de siete generaciones en Macondo."
+          },
+          {
+            "id": 2,
+            "titulo": "Rayuela",
+            "autor": "Julio Cortázar",
+            "genero": "Novela experimental",
+            "anio": 1963,
+            "sinopsis": "Una novela que puede leerse de múltiples formas, rompiendo con la estructura tradicional."
+          }
+        ]
+      }
+    },
+    {
+      "endpoint": "http://localhost:3010/libros/search",
+      "method": "GET",
+      "title": "Buscar libros",
+      "description": "Buscar libros con múltiples criterios de búsqueda. Los parámetros pueden combinarse para refinar los resultados.",
+      "requiresAuth": false,
+      "requiresAdmin": false,
+      "queryParams": [
+        {"name": "q", "type": "string", "required": false, "description": "Término de búsqueda general (busca en título, autor y descripción)"},
+        {"name": "genero", "type": "string", "required": false, "description": "Filtrar por género literario"},
+        {"name": "autor", "type": "string", "required": false, "description": "Filtrar por nombre de autor"},
+        {"name": "anio_min", "type": "number", "required": false, "description": "Año de publicación mínimo"},
+        {"name": "anio_max", "type": "number", "required": false, "description": "Año de publicación máximo"},
+        {"name": "ordenar_por", "type": "string", "required": false, "description": "Campo por el que ordenar (titulo, autor, anio)"},
+        {"name": "orden", "type": "string", "required": false, "description": "Dirección del orden (asc, desc)", "default": "asc"},
+        {"name": "pagina", "type": "number", "required": false, "description": "Número de página", "default": 1},
+        {"name": "por_pagina", "type": "number", "required": false, "description": "Resultados por página", "default": 10}
+      ],
+      "exampleResponse": {
+        "success": true,
+        "data": [
+          {
+            "id": 1,
+            "titulo": "Cien años de soledad",
+            "autor": "Gabriel García Márquez",
+            "genero": "Realismo mágico",
+            "anio": 1967,
+            "sinopsis": "La historia de la familia Buendía a lo largo de siete generaciones en Macondo.",
+            "puntuacion_promedio": 4.5,
+            "total_resenas": 1250
+          },
+          {
+            "id": 3,
+            "titulo": "El amor en los tiempos del cólera",
+            "autor": "Gabriel García Márquez",
+            "genero": "Realismo mágico",
+            "anio": 1985,
+            "sinopsis": "Una historia de amor que perdura a través del tiempo y las circunstancias.",
+            "puntuacion_promedio": 4.3,
+            "total_resenas": 980
+          }
+        ],
+        "paginacion": {
+          "total": 2,
+          "pagina_actual": 1,
+          "por_pagina": 10,
+          "total_paginas": 1
+        }
+      },
+      "errorResponses": [
+        {
+          "status": 400,
+          "description": "Parámetros de búsqueda inválidos",
+          "body": {
+            "success": false,
+            "error": "VALIDATION_ERROR",
+            "message": "Parámetros de búsqueda no válidos",
+            "details": [
+              {"field": "anio_min", "error": "Debe ser un número mayor que 0"},
+              {"field": "orden", "error": "Valor no válido. Valores aceptados: asc, desc"}
+            ]
+          }
+        },
+        {
+          "status": 500,
+          "description": "Error interno del servidor",
+          "body": {
+            "success": false,
+            "error": "INTERNAL_SERVER_ERROR",
+            "message": "Ha ocurrido un error inesperado"
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "http://localhost:3010/auth/me",
+      "method": "GET",
+      "title": "Obtener perfil de usuario",
+      "description": "Obtiene la información del perfil del usuario autenticado. Se requiere un token JWT válido en el encabezado de autorización.",
+      "requiresAuth": true,
+      "requiresAdmin": false,
+      "headers": [
+        {"name": "Authorization", "type": "string", "required": true, "description": "Token JWT con el prefijo 'Bearer '"}
+      ],
+      "exampleResponse": {
+        "success": true,
+        "data": {
+          "id": 1,
+          "email": "usuario@ejemplo.com",
+          "nombre": "Usuario",
+          "apellido": "Ejemplo",
+          "role": "user",
+          "fechaRegistro": "2023-01-15T12:00:00.000Z",
+          "ultimoInicioSesion": "2023-07-25T14:30:00.000Z",
+          "preferencias": {
+            "tema": "claro",
+            "notificaciones": true
+          },
+          "estadisticas": {
+            "librosLeidos": 15,
+            "resenasPublicadas": 8,
+            "seguidores": 24
+          }
+        }
+      },
+      "errorResponses": [
+        {
+          "status": 401,
+          "description": "No autorizado - Token inválido o faltante",
+          "body": {
+            "success": false,
+            "error": "UNAUTHORIZED",
+            "message": "Se requiere autenticación para acceder a este recurso"
+          }
+        },
+        {
+          "status": 403,
+          "description": "Prohibido - Token expirado",
+          "body": {
+            "success": false,
+            "error": "TOKEN_EXPIRED",
+            "message": "El token ha expirado, por favor inicia sesión nuevamente"
+          }
+        },
+        {
+          "status": 404,
+          "description": "No encontrado - Usuario no existe",
+          "body": {
+            "success": false,
+            "error": "USER_NOT_FOUND",
+            "message": "El usuario asociado a este token no existe"
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "http://localhost:3010/usuarios/liked",
+      "method": "GET",
+      "title": "Obtener libros favoritos",
+      "description": "Obtiene el listado de libros marcados como favoritos por el usuario autenticado. Incluye paginación y opciones de ordenamiento.",
+      "requiresAuth": true,
+      "requiresAdmin": false,
+      "headers": [
+        {"name": "Authorization", "type": "string", "required": true, "description": "Token JWT con el prefijo 'Bearer '"}
+      ],
+      "queryParams": [
+        {"name": "pagina", "type": "number", "required": false, "description": "Número de página", "default": 1},
+        {"name": "por_pagina", "type": "number", "required": false, "description": "Resultados por página", "default": 10},
+        {"name": "ordenar_por", "type": "string", "required": false, "description": "Campo por el que ordenar (fecha_agregado, titulo, autor)", "default": "fecha_agregado"},
+        {"name": "orden", "type": "string", "required": false, "description": "Dirección del orden (asc, desc)", "default": "desc"}
+      ],
+      "exampleResponse": {
+        "success": true,
+        "data": [
+          {
+            "id_libro": 42,
+            "fecha_agregado": "2023-07-20T15:30:00.000Z",
+            "libro": {
+              "id": 42,
+              "titulo": "Cien años de soledad",
+              "autor": "Gabriel García Márquez",
+              "genero": "Realismo mágico",
+              "anio": 1967,
+              "portada_url": "/portadas/cien-anos-soledad.jpg",
+              "puntuacion_promedio": 4.7
+            }
+          },
+          {
+            "id_libro": 87,
+            "fecha_agregado": "2023-07-15T10:20:00.000Z",
+            "libro": {
+              "id": 87,
+              "titulo": "Rayuela",
+              "autor": "Julio Cortázar",
+              "genero": "Novela experimental",
+              "anio": 1963,
+              "portada_url": "/portadas/rayuela.jpg",
+              "puntuacion_promedio": 4.5
+            }
+          }
+        ],
+        "paginacion": {
+          "total": 15,
+          "pagina_actual": 1,
+          "por_pagina": 10,
+          "total_paginas": 2
+        }
+      },
+      "errorResponses": [
+        {
+          "status": 401,
+          "description": "No autorizado - Token inválido o faltante",
+          "body": {
+            "success": false,
+            "error": "UNAUTHORIZED",
+            "message": "Se requiere autenticación para acceder a este recurso"
+          }
+        },
+        {
+          "status": 403,
+          "description": "Prohibido - Token expirado o inválido",
+          "body": {
+            "success": false,
+            "error": "FORBIDDEN",
+            "message": "No tienes permiso para acceder a este recurso"
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "http://localhost:3010/usuarios/disliked",
+      "method": "GET",
+      "title": "Obtener libros no deseados",
+      "description": "Obtiene el listado de libros marcados como no deseados por el usuario autenticado. Incluye paginación y opciones de ordenamiento.",
+      "requiresAuth": true,
+      "requiresAdmin": false,
+      "headers": [
+        {"name": "Authorization", "type": "string", "required": true, "description": "Token JWT con el prefijo 'Bearer '"}
+      ],
+      "queryParams": [
+        {"name": "pagina", "type": "number", "required": false, "description": "Número de página", "default": 1},
+        {"name": "por_pagina", "type": "number", "required": false, "description": "Resultados por página", "default": 10},
+        {"name": "ordenar_por", "type": "string", "required": false, "description": "Campo por el que ordenar (fecha_agregado, titulo, autor)", "default": "fecha_agregado"},
+        {"name": "orden", "type": "string", "required": false, "description": "Dirección del orden (asc, desc)", "default": "desc"}
+      ],
+      "exampleResponse": {
+        "success": true,
+        "data": [
+          {
+            "id_libro": 56,
+            "fecha_agregado": "2023-07-18T09:15:00.000Z",
+            "motivo": "No me interesa este género",
+            "libro": {
+              "id": 56,
+              "titulo": "Cincuenta sombras de Grey",
+              "autor": "E. L. James",
+              "genero": "Novela romántica erótica",
+              "anio": 2011,
+              "portada_url": "/portadas/cincuenta-sombras.jpg",
+              "puntuacion_promedio": 3.2
+            }
+          },
+          {
+            "id_libro": 23,
+            "fecha_agregado": "2023-07-10T14:20:00.000Z",
+            "motivo": "Ya leí algo similar",
+            "libro": {
+              "id": 23,
+              "titulo": "El código Da Vinci",
+              "autor": "Dan Brown",
+              "genero": "Suspenso",
+              "anio": 2003,
+              "portada_url": "/portadas/codigo-davinci.jpg",
+              "puntuacion_promedio": 3.8
+            }
+          }
+        ],
+        "paginacion": {
+          "total": 5,
+          "pagina_actual": 1,
+          "por_pagina": 10,
+          "total_paginas": 1
+        }
+      },
+      "errorResponses": [
+        {
+          "status": 401,
+          "description": "No autorizado - Token inválido o faltante",
+          "body": {
+            "success": false,
+            "error": "UNAUTHORIZED",
+            "message": "Se requiere autenticación para acceder a este recurso"
+          }
+        },
+        {
+          "status": 403,
+          "description": "Prohibido - Token expirado o inválido",
+          "body": {
+            "success": false,
+            "error": "FORBIDDEN",
+            "message": "No tienes permiso para acceder a este recurso"
+          }
+        },
+        {
+          "status": 429,
+          "description": "Demasiadas solicitudes",
+          "body": {
+            "success": false,
+            "error": "TOO_MANY_REQUESTS",
+            "message": "Has excedido el límite de solicitudes. Intenta de nuevo en 1 minuto.",
+            "retryAfter": 60
+          }
+        },
+        {
+          "status": 500,
+          "description": "Error interno del servidor",
+          "body": {
+            "success": false,
+            "error": "INTERNAL_SERVER_ERROR",
+            "message": "Ha ocurrido un error inesperado al procesar su solicitud"
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "http://localhost:3010/usuarios/read",
+      "method": "GET",
+      "title": "Obtener libros leídos",
+      "description": "Obtiene el historial de libros leídos por el usuario autenticado. Incluye información detallada de cada lectura como fecha de inicio, fecha de finalización, calificación y reseña.",
+      "requiresAuth": true,
+      "requiresAdmin": false,
+      "headers": [
+        {"name": "Authorization", "type": "string", "required": true, "description": "Token JWT con el prefijo 'Bearer '"}
+      ],
+      "queryParams": [
+        {"name": "pagina", "type": "number", "required": false, "description": "Número de página", "default": 1},
+        {"name": "por_pagina", "type": "number", "required": false, "description": "Resultados por página", "default": 10},
+        {"name": "ordenar_por", "type": "string", "required": false, "description": "Campo por el que ordenar (fecha_inicio, fecha_fin, titulo, autor, calificacion)", "default": "fecha_fin"},
+        {"name": "orden", "type": "string", "required": false, "description": "Dirección del orden (asc, desc)", "default": "desc"},
+        {"name": "solo_terminados", "type": "boolean", "required": false, "description": "Filtrar solo libros completamente leídos", "default": true},
+        {"name": "min_calificacion", "type": "number", "required": false, "description": "Filtrar por calificación mínima (1-5)", "minimum": 1, "maximum": 5},
+        {"name": "anio_lectura", "type": "number", "required": false, "description": "Filtrar por año de lectura"}
+      ],
+      "exampleResponse": {
+        "success": true,
+        "data": [
+          {
+            "id_lectura": 123,
+            "id_libro": 89,
+            "fecha_inicio": "2023-06-01T10:00:00.000Z",
+            "fecha_fin": "2023-06-15T14:30:00.000Z",
+            "paginas_leidas": 320,
+            "calificacion": 4,
+            "resena": "Excelente libro que mantiene la intriga hasta el final. Los personajes están muy bien desarrollados.",
+            "es_favorito": true,
+            "etiquetas": ["suspenso", "misterio", "best-seller"],
+            "libro": {
+              "id": 89,
+              "titulo": "La sombra del viento",
+              "autor": "Carlos Ruiz Zafón",
+              "genero": "Misterio",
+              "anio": 2001,
+              "paginas": 544,
+              "portada_url": "/portadas/sombra-viento.jpg",
+              "sinopsis": "Una novela de misterio ambientada en la Barcelona de mediados del siglo XX..."
+            }
+          },
+          {
+            "id_lectura": 124,
+            "id_libro": 42,
+            "fecha_inicio": "2023-05-10T09:15:00.000Z",
+            "fecha_fin": "2023-05-30T18:45:00.000Z",
+            "paginas_leidas": 280,
+            "calificacion": 5,
+            "resena": "Obra maestra absoluta. La narrativa es impresionante y los temas son atemporales.",
+            "es_favorito": true,
+            "etiquetas": ["clásico", "literatura universal", "realismo mágico"],
+            "libro": {
+              "id": 42,
+              "titulo": "Cien años de soledad",
+              "autor": "Gabriel García Márquez",
+              "genero": "Realismo mágico",
+              "anio": 1967,
+              "paginas": 471,
+              "portada_url": "/portadas/cien-anos-soledad.jpg",
+              "sinopsis": "La historia de la familia Buendía a lo largo de siete generaciones en el mítico pueblo de Macondo..."
+            }
+          }
+        ],
+        "estadisticas": {
+          "total_libros": 42,
+          "paginas_totales": 12560,
+          "promedio_calificacion": 4.2,
+          "libros_por_genero": {
+            "Misterio": 12,
+            "Ciencia Ficción": 8,
+            "Fantasía": 7,
+            "No Ficción": 6,
+            "Otros": 9
+          },
+          "libros_por_anio": {
+            "2023": 15,
+            "2022": 18,
+            "2021": 9
+          }
+        },
+        "paginacion": {
+          "total": 42,
+          "pagina_actual": 1,
+          "por_pagina": 10,
+          "total_paginas": 5
+        }
+      },
+      "errorResponses": [
+        {
+          "status": 400,
+          "description": "Parámetros de consulta inválidos",
+          "body": {
+            "success": false,
+            "error": "INVALID_QUERY_PARAMETERS",
+            "message": "Los parámetros de consulta proporcionados no son válidos",
+            "details": [
+              {
+                "field": "min_calificacion",
+                "error": "Debe ser un número entre 1 y 5"
+              }
+            ]
+          }
+        },
+        {
+          "status": 401,
+          "description": "No autorizado - Token inválido o faltante",
+          "body": {
+            "success": false,
+            "error": "UNAUTHORIZED",
+            "message": "Se requiere autenticación para acceder a este recurso"
+          }
+        },
+        {
+          "status": 403,
+          "description": "Prohibido - Token expirado o inválido",
+          "body": {
+            "success": false,
+            "error": "FORBIDDEN",
+            "message": "No tienes permiso para acceder a este recurso"
+          }
+        },
+        {
+          "status": 500,
+          "description": "Error interno del servidor",
+          "body": {
+            "success": false,
+            "error": "INTERNAL_SERVER_ERROR",
+            "message": "Ha ocurrido un error inesperado al procesar su solicitud"
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "http://localhost:3010/auth/register",
+      "method": "POST",
+      "title": "Registrar usuario",
+{{ ... }}
+      "description": "Crea una nueva cuenta de usuario en el sistema. Al registrarse correctamente, el usuario recibirá un token JWT para autenticación.",
+      "requiresAuth": false,
+      "requiresAdmin": false,
+      "headers": [
+        {"name": "Content-Type", "type": "string", "required": true, "description": "Debe ser 'application/json'"}
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["email", "password"],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "description": "Correo electrónico del usuario"
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 8,
+                  "description": "Contraseña (mínimo 8 caracteres)"
+                },
+                "nombre": {
+                  "type": "string",
+                  "description": "Nombre del usuario (opcional)"
+                },
+                "apellido": {
+                  "type": "string",
+                  "description": "Apellido del usuario (opcional)"
+                }
+              }
+            },
+            "example": {
+              "email": "nuevo@usuario.com",
+              "password": "micontraseña123",
+              "nombre": "Juan",
+              "apellido": "Pérez"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Usuario registrado exitosamente",
+          "content": {
+            "application/json": {
+              "example": {
+                "success": true,
+                "message": "Usuario registrado exitosamente",
+                "data": {
+                  "id": 123,
+                  "email": "nuevo@usuario.com",
+                  "nombre": "Juan",
+                  "apellido": "Pérez",
+                  "role": "user",
+                  "fechaRegistro": "2023-07-25T17:45:30.000Z"
+                },
+                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Error de validación",
+          "content": {
+            "application/json": {
+              "example": {
+                "success": false,
+                "error": "VALIDATION_ERROR",
+                "message": "Error de validación en los datos proporcionados",
+                "details": [
+                  {
+                    "field": "email",
+                    "error": "El formato del correo electrónico no es válido"
+                  },
+                  {
+                    "field": "password",
+                    "error": "La contraseña debe tener al menos 8 caracteres"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "409": {
+          "description": "Conflicto - El correo electrónico ya está registrado",
+          "content": {
+            "application/json": {
+              "example": {
+                "success": false,
+                "error": "EMAIL_ALREADY_EXISTS",
+                "message": "El correo electrónico ya está registrado"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Error interno del servidor",
+          "content": {
+            "application/json": {
+              "example": {
+                "success": false,
+                "error": "INTERNAL_SERVER_ERROR",
+                "message": "Ha ocurrido un error inesperado al procesar su solicitud"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "endpoint": "http://localhost:3010/auth/login",
+      "method": "POST",
+      "title": "Iniciar sesión",
+      "description": "Autentica a un usuario y devuelve un token JWT para acceder a los recursos protegidos. El token debe incluirse en el encabezado 'Authorization' de las peticiones subsiguientes.",
+      "requiresAuth": false,
+      "requiresAdmin": false,
+      "headers": [
+        {"name": "Content-Type", "type": "string", "required": true, "description": "Debe ser 'application/json'"}
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["email", "password"],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "description": "Correo electrónico del usuario"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "Contraseña del usuario"
+                }
+              }
+            },
+            "example": {
+              "email": "usuario@ejemplo.com",
+              "password": "micontraseña123"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Autenticación exitosa",
+          "content": {
+            "application/json": {
+              "example": {
+                "success": true,
+                "message": "Inicio de sesión exitoso",
+                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c3VhcmlvQGVqZW1wbG8uY29tIiwiaWF0IjoxNjE3MjU5MjI5LCJleHAiOjE2MTczNDU2Mjl9.1Qa-2QY8Q1ZQ2Q1ZQ2Q1ZQ2Q1ZQ2Q1ZQ2Q1ZQ2Q1ZQ2Q1ZQ2Q1ZQ2Q",
+                "user": {
+                  "id": 1,
+                  "email": "usuario@ejemplo.com",
+                  "nombre": "Juan",
+                  "apellido": "Pérez",
+                  "role": "user",
+                  "fechaRegistro": "2023-01-15T12:00:00.000Z"
+                },
+                "expiresIn": 86400
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Error de validación",
+          "content": {
+            "application/json": {
+              "example": {
+                "success": false,
+                "error": "VALIDATION_ERROR",
+                "message": "Error de validación en los datos proporcionados",
+                "details": [
+                  {
+                    "field": "email",
+                    "error": "El campo email es requerido"
+                  },
+                  {
+                    "field": "password",
+                    "error": "El campo contraseña es requerido"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Credenciales inválidas",
+          "content": {
+            "application/json": {
+              "example": {
+                "success": false,
+                "error": "INVALID_CREDENTIALS",
+                "message": "Correo electrónico o contraseña incorrectos"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Cuenta deshabilitada",
+          "content": {
+            "application/json": {
+              "example": {
+                "success": false,
+                "error": "ACCOUNT_DISABLED",
+                "message": "Esta cuenta ha sido deshabilitada. Por favor, contacte al administrador."
+              }
+            }
+          }
+        },
+        "429": {
+          "description": "Demasiados intentos",
+          "content": {
+            "application/json": {
+              "example": {
+                "success": false,
+                "error": "TOO_MANY_ATTEMPTS",
+                "message": "Demasiados intentos fallidos. Por favor, intente nuevamente en 15 minutos.",
+                "retryAfter": 900
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Error interno del servidor",
+          "content": {
+            "application/json": {
+              "example": {
+                "success": false,
+                "error": "INTERNAL_SERVER_ERROR",
+                "message": "Ha ocurrido un error inesperado al procesar su solicitud"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

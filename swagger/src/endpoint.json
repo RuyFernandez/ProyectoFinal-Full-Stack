@@ -1,0 +1,96 @@
+{
+  "documentation": {
+    "title": "Guía Rápida de Uso - Sistema de Usuarios",
+    "description": "Esta guía explica cómo interactuar con los endpoints de autenticación y gestión de usuarios.",
+    "sections": [
+      {
+        "title": "1. Registro de Usuario",
+        "description": "Para registrarse, envía un POST a /auth/register con email y contraseña.",
+        "example": {
+          "request": {
+            "url": "http://localhost:3010/auth/register",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "email": "usuario@ejemplo.com",
+              "password": "contraseña123"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "message": "Usuario registrado exitosamente"
+            }
+          }
+        }
+      },
+      {
+        "title": "2. Inicio de Sesión",
+        "description": "Para iniciar sesión, envía un POST a /auth/login con email y contraseña. Recibirás un token JWT que debes usar en las peticiones autenticadas.",
+        "example": {
+          "request": {
+            "url": "http://localhost:3010/auth/login",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "email": "usuario@ejemplo.com",
+              "password": "contraseña123"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            }
+          }
+        }
+      },
+      {
+        "title": "3. Uso del Token JWT",
+        "description": "Incluye el token en el encabezado 'Authorization' de tus peticiones: 'Bearer tu_token_jwt'"
+      },
+      {
+        "title": "4. Endpoints Protegidos",
+        "description": "Los siguientes endpoints requieren autenticación (token JWT):",
+        "endpoints": [
+          "GET /auth/me - Obtener perfil del usuario",
+          "GET /usuarios/liked - Libros favoritos",
+          "GET /usuarios/read - Libros leídos",
+          "GET /usuarios/toread - Lista de lectura",
+          "GET /usuarios/disliked - Libros no deseados"
+        ]
+      },
+      {
+        "title": "5. Manejo de Errores Comunes",
+        "errors": [
+          {
+            "status": 401,
+            "message": "No autorizado - Token inválido o faltante"
+          },
+          {
+            "status": 400,
+            "message": "Error de validación - Campos faltantes o inválidos"
+          },
+          {
+            "status": 500,
+            "message": "Error del servidor - Contacta al administrador"
+          }
+        ]
+      }
+    ]
+  },
+  "endpoints": [
+    {
+      "endpoint": "http://localhost:3010/libros",
+      "method": "GET",
+      "title": "Obtener libros",
+      "description": "Lista todos los libros disponibles. Puede incluir parámetros de consulta para filtrar y paginar resultados.",
+      "requiresAuth": false,
+      "requiresAdmin": false
+    }
+  ]
+}

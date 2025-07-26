@@ -1,0 +1,112 @@
+
+### obtener todos los libros
+GET http://localhost:3010/libros/
+content-type: application/json
+
+
+{
+    "title": "",
+    "author": "",
+    "genre": "",
+    "description": "",
+    "publisher": "",
+    "published_year": "",
+    "pages": ""
+}
+
+###crear libro
+POST http://localhost:3010/libros
+content-type: application/json
+
+{
+    "title": "El cirujano de Gaster Fell",
+    "author": "Arthur Conan Doyle",
+    "genre": ["Drama", "Psicológico", "Misterio"],
+    "description": "Un médico enfrenta dilemas éticos y humanos en un entorno rural.",
+    "publisher": "Desconocido",
+    "published_year": 1885,
+    "pages": 256
+}
+
+### obtener todos los libros por filtro
+GET http://localhost:3010/libros/filter
+content-type: application/json
+
+
+{   
+    "title": "El señor de los anillos: La comunidad del anillo",
+    "author": "J. R. R. Tolkien",
+    "genre": "Fantasía épica",
+    "description": "Frodo Bolsón emprende un peligroso viaje para destruir un anillo que podría acabar con el mundo.",
+    "publisher": "George Allen & Unwin",
+    "published_year": 1954,
+    "pages": 423
+}
+
+### agregar un libro
+POST http://localhost:3010/libros
+content-type: application/json
+
+  {
+    "title": "El señor de los anillos: La comunidad del anillo",
+  "author": "J. R. R. Tolkien",
+  "genre": [
+    "Fantasía",
+    "Aventura",
+    "Guerra"
+  ],
+  "description": "Frodo Bolsón emprende un peligroso viaje para destruir un anillo que podría acabar con el mundo.",
+  "publisher": "George Allen & Unwin",
+  "published_year": 1954,
+  "pages": 423,
+  }
+
+
+
+### actualizar un libro
+PUT http://localhost:3010/libros/686ee510d74c3688ca06d5cf
+content-type: application/json
+
+{
+    "title": "El señor de los anillos: La comunidad del anillo",
+    "author": "J. R. R. Tolkien",
+    "genre": ["Fantasía", "Aventura épica", "Guerra"],
+    "description": "Frodo Bolsón emprende un peligroso viaje para destruir un anillo que podría acabar con el mundo.",
+    "publisher": "George Allen & Unwin",
+    "published_year": 1954,
+    "pages": 423,
+}
+
+
+### eliminar un libro
+DELETE http://localhost:3010/libros/686ee510d74c3688ca06d5cf
+content-type: application/json
+
+
+
+### registro de usuario
+POST http://localhost:3010/auth/register
+content-type: application/json
+
+{
+    "username": "usuario1",
+    "email": "usuario1@example.com",
+    "password": "contraseña123",
+    "role": "admin",
+}
+
+
+### login de usuario
+POST http://localhost:3010/auth/login
+content-type: application/json
+
+{
+    "usernameOrEmail": "usuario1",
+    "password": "contraseña123"
+}
+
+
+### obtener usuario
+GET http://localhost:3010/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODc5NjM3ZWQ2ODVmMjY4NzBmNDcxNjAiLCJpYXQiOjE3NTI3ODU4NTIsImV4cCI6MTc1Mjg3MjI1Mn0.hC9JF3uTmn0uXxFjpzxPazv4QVPiRb5e3xme2SFEWH0
+content-type: application/json
