@@ -2,7 +2,6 @@ import { Router } from "express";
 import { Libros } from "../controllers/Libros.js";
 import { verificarToken } from "../middlewares/ValidarToken.js";
 import { isAdmin } from "../middlewares/isAdmin.js";
-import mongoose from "mongoose";
 
 export const routeForLibros = Router();
 
@@ -65,11 +64,6 @@ export function LibrosRoute(model) {
     res.json(deletedLibro);
   });
 
-  process.on('SIGINT', async () => {
-    await mongoose.connection.disconnect();
-    console.log('MongoDB connection closed');
-    process.exit(0);
-  });
 
   return routeForLibros;
 }
